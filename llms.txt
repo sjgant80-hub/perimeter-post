@@ -1,0 +1,13 @@
+# Perimeter Post
+
+> The authorization checkpoint in front of kar-hub. An operator issues a capability (a holder key, a set of actions, a budget, an expiry, an id), signed by the operator. An agent presents a request (an action, a cost, a counter) signed by the holder, carrying the capability. The post admits it only if: operator-signed, holder-signed, action in scope, not expired, not revoked, in budget, counter not replayed — in that order, fail-closed. Chosen by Kar's own local 14B as the next organ.
+
+Live: https://sjgant80-hub.github.io/perimeter-post/
+
+## Proof (re-runnable)
+- attack-kit/redteam.mjs --check: 15 simulated intrusions (forged grant, rogue operator, tampered grant, stolen cap, over-scope, expired, revoked, over budget, replay) — byte-identical receipt.
+- witness-all.mjs: mutation + fuzz gate over token + post — CLEAN, 68/68, zero baselined.
+- test/*.test.mjs: unit + hostile-input (never-throw) suites.
+
+## Composes with
+break-it (the packet gate — authenticity) and immune-exchange (refusals become antibodies). Identity = capability + budget. Credits: GEP ladder Gary W. Floyd (Lumiea Systems Research Division, ThunderStruck Service LLC, 2025); Konomi / Thomas Frumkin. MIT.

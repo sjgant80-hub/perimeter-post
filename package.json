@@ -1,0 +1,9 @@
+{
+  "name": "perimeter-post",
+  "version": "1.0.0",
+  "description": "The authorization checkpoint for kar-hub: an operator-issued capability (who may do what, a budget, an expiry), verified before anything is acted on. Chosen by Kar's own 14B.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": { "start": "node run.mjs", "test": "node --test test/*.test.mjs", "witness": "node witness-all.mjs", "redteam": "node attack-kit/redteam.mjs", "redteam:check": "node attack-kit/redteam.mjs --check" },
+  "engines": { "node": ">=20" }
+}

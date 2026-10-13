@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Perimeter Post</title>
+<meta name="description" content="The authorization checkpoint for kar-hub. An operator issues a capability (who may do what, a budget, an expiry); the post admits a request only if it is operator-signed, holder-signed, in scope, unexpired, unrevoked, in budget, and not a replay. The page runs the exact kernel its tests and CI gate." />
+<style>
+  :root{--bg:#0a0d12;--panel:#121820;--panel2:#0e141b;--ink:#e7edf3;--dim:#8da2b5;--faint:#5a6b7d;--line:#1e2a36;--accent:#45d0a8;--accent2:#6ab0ff;--bad:#ff6b6b;--warn:#ffcf5c;--mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;--sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;}
+  *{box-sizing:border-box}html,body{margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5;padding:0 16px;max-width:980px;margin:0 auto;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent2)}
+  h1{font-size:clamp(26px,6.5vw,42px);letter-spacing:.04em;margin:.6em 0 .1em;font-weight:800}h1 .x{color:var(--accent)}
+  .tag{color:var(--dim);font-size:15px;margin:0 0 1.1em;max-width:64ch}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--faint);border:1px solid var(--line);border-radius:20px;padding:2px 9px;margin-left:4px}.live{color:var(--accent)}
+  .rule{background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:14px 16px;margin:0 0 20px;font-size:14.5px}.rule b{color:var(--accent)}
+  .grid{display:grid;grid-template-columns:1fr;gap:16px}@media(min-width:760px){.grid.two{grid-template-columns:1fr 1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .panel h2{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--dim);margin:0 0 12px;font-weight:700}
+  .btns{display:flex;flex-wrap:wrap;gap:8px}
+  button{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 13px;font-size:13px;cursor:pointer;font-family:var(--sans);transition:.12s}
+  button:hover{border-color:var(--accent);color:var(--accent)}button.primary{background:var(--accent);color:#05231c;border-color:var(--accent);font-weight:700}button.primary:hover{filter:brightness(1.08);color:#05231c}
+  button.bad:hover{border-color:var(--bad);color:var(--bad)}
+  .kv{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13px}.kv:last-child{border-bottom:0}.kv span:first-child{color:var(--dim)}.kv span:last-child{font-family:var(--mono);text-align:right}
+  .ladder{display:flex;flex-wrap:wrap;gap:5px;margin:10px 0}
+  .stage{font-family:var(--mono);font-size:10.5px;padding:3px 7px;border-radius:6px;background:var(--panel2);border:1px solid var(--line);color:var(--faint)}
+  .stage.pass{color:var(--accent);border-color:#1f4a3d}.stage.hit{background:var(--bad);color:#2a0000;border-color:var(--bad);font-weight:700}.stage.admit{background:var(--accent);color:#05231c;border-color:var(--accent);font-weight:700}
+  .feed{font-family:var(--mono);font-size:11.5px;max-height:240px;overflow:auto;margin-top:8px}
+  .ev{padding:5px 0;border-bottom:1px solid var(--line)}.ev:last-child{border-bottom:0}.ev .ok{color:var(--accent)}.ev .no{color:var(--bad)}
+  .foot{color:var(--faint);font-size:12.5px;margin:28px 0;line-height:1.7}.foot a{color:var(--accent2)}code{font-family:var(--mono);color:var(--dim)}
+</style>
+</head>
+<body>
+  <h1>PERIMETER<span class="x"> POST</span></h1>
+  <p class="tag">The <b>authorization checkpoint</b> for kar-hub. An operator issues a <b>capability</b> — who may do
+    what, a budget, an expiry — and the post lets a request through only if it is operator-signed, holder-signed, in
+    scope, unexpired, unrevoked, in budget, and not a replay. <span id="kstat" class="pill">booting kernel&hellip;</span></p>
+
+  <div class="rule">
+    A packet gate asks <i>&ldquo;is this well-formed and authentic?&rdquo;</i> &mdash; this asks <b>&ldquo;is this agent
+    authorised and in budget for THIS action, right now?&rdquo;</b> Everything below runs the exact <code>decide</code>
+    kernel the tests and CI gate; the operator and agent keys are generated in your browser.
+  </div>
+
+  <div class="grid two">
+    <div class="panel">
+      <h2>The capability (operator-issued)</h2>
+      <div class="kv"><span>id</span><span>cap-01</span></div>
+      <div class="kv"><span>operator key</span><span id="opk">&mdash;</span></div>
+      <div class="kv"><span>holder (the agent)</span><span id="agk">&mdash;</span></div>
+      <div class="kv"><span>actions granted</span><span>read, write</span></div>
+      <div class="kv"><span>budget</span><span id="budget">100</span></div>
+      <div class="kv"><span>spent</span><span id="spent">0</span></div>
+      <div class="kv"><span>last counter</span><span id="counter">0</span></div>
+      <div class="kv"><span>expired · revoked</span><span id="er">no · no</span></div>
+    </div>
+    <div class="panel">
+      <h2>Present a request</h2>
+      <div class="btns" style="margin-bottom:8px">
+        <button class="primary" id="read">read (cost 10)</button>
+        <button class="primary" id="write">write (cost 30)</button>
+      </div>
+      <div class="btns">
+        <button class="bad" id="scope">admin (not granted)</button>
+        <button class="bad" id="replay">replay last counter</button>
+        <button class="bad" id="over">over budget (cost 110)</button>
+        <button class="bad" id="forge">forged grant</button>
+        <button class="bad" id="steal">stolen capability</button>
+        <button class="bad" id="expire">jump past expiry</button>
+        <button class="bad" id="revoke">revoke &amp; retry</button>
+      </div>
+      <div class="ladder" id="ladder"></div>
+      <div class="feed" id="feed"><div class="ev">press a button — a request hits the checkpoint.</div></div>
+    </div>
+  </div>
+
+  <p class="foot">
+    Kernel-backed: this page imports <code>src/token · post</code> — the same modules <code>witness-all.mjs</code>
+    (68/68 killed, clean) and <code>attack-kit/redteam.mjs --check</code> (15 intrusions) prove in CI. Ed25519 is the
+    browser&rsquo;s WebCrypto; the operator and agent keys are generated in your browser. Nothing calls home.<br>
+    Source and the capability contract: <a href="https://github.com/sjgant80-hub/perimeter-post">github.com/sjgant80-hub/perimeter-post</a>.
+    It composes with <a href="https://github.com/sjgant80-hub/break-it">break-it</a> (the packet gate) and
+    <a href="https://github.com/sjgant80-hub/immune-exchange">immune-exchange</a> (refusals become antibodies).
+    GEP / wallet lineage credited in NOTICE.
+  </p>
+
+<script type="module">
+import { canonical, capMaterial, reqMaterial } from './src/token.mjs';
+import { decide, STAGES } from './src/post.mjs';
+const $=id=>document.getElementById(id);
+const te=new TextEncoder();
+const toHex=u8=>Array.from(u8,b=>b.toString(16).padStart(2,'0')).join('');
+const importPub=raw=>crypto.subtle.importKey('raw',raw,{name:'Ed25519'},false,['verify']);
+async function vk(msg,sigHex,pubHex){ try{ return await crypto.subtle.verify('Ed25519', await importPub(hexBytes(pubHex)), hexBytes(sigHex), te.encode(msg)); }catch{ return false; } }
+const hexBytes=h=>{const o=new Uint8Array(h.length>>1);for(let i=0;i<o.length;i++)o[i]=parseInt(h.substr(i*2,2),16);return o;};
+
+let operator, agent, thief, opPub, agentPub, cap, state;
+async function sign(key,msg){ return toHex(new Uint8Array(await crypto.subtle.sign('Ed25519', key, te.encode(msg)))); }
+async function issue(grant, signer){ return { grant, sig: await sign(signer, capMaterial(grant)) }; }
+async function makeReq(capObj, action, cost, counter, holderKey){ const r={ capability:capObj, action, cost, counter }; return { ...r, sig: await sign(holderKey, reqMaterial(r)) }; }
+
+// the post's ctx: verify is pre-computed (WebCrypto) for the two signatures this request carries
+async function present(label, request, nowOverride){
+  const g=request.capability.grant;
+  const capOk = await vk(capMaterial(g), request.capability.sig, opPub);        // operator sig
+  const reqOk = await vk(reqMaterial(request), request.sig, g.holder);          // holder sig
+  const ctx={ operatorKey:opPub,
+    verify:(msg,sig,pub)=> pub===opPub ? capOk : (pub===g.holder ? reqOk : false),
+    now:()=> nowOverride ?? state.now, spent:(id)=> state.spent[id]||0, lastCounter:(h)=> state.last[h]||0, revoked:(id)=> !!state.revoked[id] };
+  const r = decide(request, ctx);
+  showLadder(r);
+  if(r.admit){ state.spent[r.id]=(state.spent[r.id]||0)+r.cost; state.last[r.holder]=request.counter; log(`<span class="ok">ADMIT</span> ${label} — charged ${r.cost}`); }
+  else log(`<span class="no">refuse</span> ${label} → <b>${r.stage}</b>: ${r.reason}`);
+  render();
+}
+function showLadder(r){ const hit = r.admit ? -1 : STAGES.indexOf(r.stage); $('ladder').innerHTML = STAGES.map((s,i)=>`<span class="stage ${r.admit&&s==='admitted'?'admit':(i===hit?'hit':(r.admit||hit>i?'pass':''))}">${s}</span>`).join(''); }
+function log(html){ const f=$('feed'); f.innerHTML='<div class="ev">'+html+'</div>'+f.innerHTML; }
+function render(){ $('opk').textContent=opPub.slice(0,12)+'…'; $('agk').textContent=agentPub.slice(0,12)+'…'; $('spent').textContent=state.spent['cap-01']||0; $('counter').textContent=state.last[agentPub]||0; $('budget').textContent=100; $('er').textContent=(state.now>=2000?'yes':'no')+' · '+(state.revoked['cap-01']?'yes':'no'); }
+const nextC=()=> (state.last[agentPub]||0)+1;
+
+$('read').onclick=async()=>present('read, cost 10', await makeReq(cap,'read',10,nextC(),agent));
+$('write').onclick=async()=>present('write, cost 30', await makeReq(cap,'write',30,nextC(),agent));
+$('scope').onclick=async()=>present('admin (over-scope)', await makeReq(cap,'admin',10,nextC(),agent));
+$('replay').onclick=async()=>present('replay the last counter', await makeReq(cap,'read',10,(state.last[agentPub]||1),agent));
+$('over').onclick=async()=>present('read, cost 110 (over budget)', await makeReq(cap,'read',110,nextC(),agent));
+$('forge').onclick=async()=>present('a grant the agent forged', await makeReq(await issue(cap.grant, agent),'read',10,nextC(),agent));
+$('steal').onclick=async()=>present('a thief using the agent\'s cap', await makeReq(cap,'read',10,nextC(),thief));
+$('expire').onclick=async()=>{ state.now=2000; render(); present('read after expiry', await makeReq(cap,'read',10,nextC(),agent)); };
+$('revoke').onclick=async()=>{ state.revoked['cap-01']=true; render(); present('read after revocation', await makeReq(cap,'read',10,nextC(),agent)); };
+
+(async function boot(){
+  try{
+    const mk=()=>crypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
+    const o=await mk(), a=await mk(), th=await mk();
+    operator=o.privateKey; agent=a.privateKey; thief=th.privateKey;
+    opPub=toHex(new Uint8Array(await crypto.subtle.exportKey('raw',o.publicKey)));
+    agentPub=toHex(new Uint8Array(await crypto.subtle.exportKey('raw',a.publicKey)));
+    cap=await issue({ id:'cap-01', holder:agentPub, actions:['read','write'], budget:100, expiry:2000 }, operator);
+    state={ now:1000, spent:{}, last:{}, revoked:{} };
+    $('kstat').textContent='kernel live'; $('kstat').className='pill live'; render();
+  }catch(e){ $('kstat').textContent='this browser lacks WebCrypto Ed25519 — try a recent Chromium'; $('kstat').style.color='var(--bad)';
+    log('<span class="no">the kernels loaded but this browser can\'t do Ed25519 in WebCrypto</span> — the code + proof run under Node (see the repo).'); }
+})();
+</script>
+</body>
+</html>

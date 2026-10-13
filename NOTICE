@@ -1,0 +1,13 @@
+PERIMETER POST — credits and provenance
+
+keys.mjs (Ed25519 + the pinned key table) is vendored from sjgant80-hub/break-it, where it is
+exercised under a witness-CLEAN gate. token.mjs (the capability/request wire) and post.mjs (the
+checkpoint) are original to this build.
+
+The capability model — identity is a capability plus a budget, issued by an operator, spent by a
+holder — follows the estate's trust-rail lineage. The GEP ladder used across that lineage is the work
+of Gary W. Floyd — Lumiea Systems Research Division, ThunderStruck Service LLC, "GEP-Based Security:
+Behavioral Entropy Signatures for Cybersecurity and DevOps" (2025). The Konomi codec lineage is the
+work of Thomas Frumkin (Konomi); this build ships no codec, the credit is recorded as provenance.
+
+This organ was chosen by Kar's own local model (qwen2.5:14b) from its nightly dream graph. MIT licensed.
